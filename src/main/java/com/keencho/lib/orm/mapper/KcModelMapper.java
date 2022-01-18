@@ -12,7 +12,7 @@ public class KcModelMapper {
         this.modelMapper = modelMapper;
     }
 
-    public <VO> VO mapOne(Object source, Class<VO> destinationType) {
+    public <V> V mapOne(Object source, Class<V> destinationType) {
         if (source == null) {
             return null;
         }
@@ -20,15 +20,15 @@ public class KcModelMapper {
         return this.modelMapper.map(source, destinationType);
     }
 
-    public <SOURCE, VO> List<VO> mapList(List<SOURCE> sourceList, Class<VO> destinationType) {
+    public <S, V> List<V> mapList(List<S> sourceList, Class<V> destinationType) {
         if (sourceList == null || sourceList.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<VO> results = new ArrayList<>();
+        List<V> results = new ArrayList<>();
 
-        for (SOURCE source : sourceList) {
-            results.add(this.mapOne(source, destinationType));
+        for (S s : sourceList) {
+            results.add(this.mapOne(s, destinationType));
         }
 
         return results;
