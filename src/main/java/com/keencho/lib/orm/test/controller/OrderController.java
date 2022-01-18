@@ -13,23 +13,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/order")
 public class OrderController {
 
     @Autowired
-    MainOrderRepository mainOrderRepository;
-
-    @Autowired
-    KcModelMapper kcModelMapper;
+    MainOrderService mainOrderService;
 
     @GetMapping
-    public ResponseEntity<?> listAll() {
-        return ResponseEntity.ok(kcModelMapper.mapList(mainOrderRepository.findAll(), MainOrderVO.class));
+    public List<MainOrderVO> listAll() {
+        return mainOrderService.listAll();
     }
 
     @GetMapping("/{id}")
     public MainOrderVO findById(@PathVariable Long id) {
-        return kcModelMapper.mapOne(mainOrderRepository.findById(id).orElse(null), MainOrderVO.class);
+        return mainOrderService.findById(id);
     }
 }

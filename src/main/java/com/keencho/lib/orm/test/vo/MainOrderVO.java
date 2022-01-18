@@ -38,6 +38,8 @@ public class MainOrderVO {
 
     private LocalDateTime completedDateTime;
 
+    private Long pickupRiderId;
+
     private RiderVO pickupRider;
 
     private RiderVO deliveryRider;
