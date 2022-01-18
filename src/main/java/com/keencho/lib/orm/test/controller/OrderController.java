@@ -1,7 +1,11 @@
-package com.keencho.lib.orm.test;
+package com.keencho.lib.orm.test.controller;
 
+import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.keencho.lib.orm.test.repository.MainOrderRepository;
 import com.keencho.lib.orm.test.service.MainOrderService;
+import com.keencho.lib.orm.test.vo.MainOrderVO;
+import org.apache.coyote.Response;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +20,16 @@ public class OrderController {
     @Autowired
     MainOrderRepository mainOrderRepository;
 
+    @Autowired
+    KcModelMapper kcModelMapper;
+
     @GetMapping
-    public ResponseEntity<?> findAll() {
-        return ResponseEntity.ok(mainOrderRepository.findAll());
+    public ResponseEntity<?> listAll() {
+        return ResponseEntity.ok(kcModelMapper.mapList(mainOrderRepository.findAll(), MainOrderVO.class));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> find(@PathVariable Long id) {
-        return ResponseEntity.ok(mainOrderRepository.findByIdCustom(id));
+    public MainOrderVO findById(@PathVariable Long id) {
+        return kcModelMapper.mapOne(mainOrderRepository.findById(id).orElse(null), MainOrderVO.class);
     }
 }

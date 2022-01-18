@@ -32,24 +32,22 @@ public class KcPostConstructor {
         r1.setPhoneNumber("01011112222");
 
         Rider r2 = new Rider();
-        r1.setName("홍길동");
-        r1.setLoginId("gildong");
-        r1.setPassword("1");
-        r1.setPhoneNumber("01011112222");
+        r2.setName("홍길동");
+        r2.setLoginId("gildong");
+        r2.setPassword("1");
+        r2.setPhoneNumber("01011112222");
 
         Rider r3 = new Rider();
-        r1.setName("김철수");
-        r1.setLoginId("chulsoo");
-        r1.setPassword("1");
-        r1.setPhoneNumber("01011112222");
+        r3.setName("김철수");
+        r3.setLoginId("chulsoo");
+        r3.setPassword("1");
+        r3.setPhoneNumber("01011112222");
 
         riderRepository.save(r1);
         riderRepository.save(r2);
         riderRepository.save(r3);
 
-        var riderList = riderRepository.findAll();
-
-        Random rand = new Random();
+        var riderList = Arrays.asList(r1, r2, r3);
 
         final var addressList = Arrays.asList(
                 "서울시 송파구",
@@ -99,6 +97,7 @@ public class KcPostConstructor {
             order.setPickupRider(randomElementSelector(riderList));
             order.setDeliveryRider(randomElementSelector(riderList));
 
+            mainOrderRepository.save(order);
         }
 
     }
