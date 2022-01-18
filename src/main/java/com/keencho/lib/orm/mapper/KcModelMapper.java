@@ -13,6 +13,10 @@ public class KcModelMapper {
     }
 
     public <VO> VO mapOne(Object source, Class<VO> destinationType) {
+        if (source == null) {
+            return null;
+        }
+
         return this.modelMapper.map(source, destinationType);
     }
 
