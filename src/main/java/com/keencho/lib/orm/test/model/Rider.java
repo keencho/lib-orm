@@ -1,4 +1,4 @@
-package com.keencho.lib.orm.test;
+package com.keencho.lib.orm.test.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,14 +10,18 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "kc_model")
-public class KcModel {
+@Table(name = "rider")
+public class Rider {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    String name;
+    private String name;
 
-    String keyword;
+    private String loginId;
+
+    private String password;
+
+    private String phoneNumber;
 }
