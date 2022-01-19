@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class KcModelMapper {
     private final ModelMapper modelMapper;
@@ -25,12 +26,9 @@ public class KcModelMapper {
             return new ArrayList<>();
         }
 
-        List<V> results = new ArrayList<>();
-
-        for (S s : sourceList) {
-            results.add(this.mapOne(s, destinationType));
-        }
-
-        return results;
+        return sourceList
+                .stream()
+                .map(s -> this.mapOne(s, destinationType))
+                .collect(Collectors.toList());
     }
 }
