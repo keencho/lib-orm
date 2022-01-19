@@ -11,4 +11,5 @@ import java.util.Map;
 public interface KcSearchQuery<E> {
 
     <P> List<P> selectList(@Nullable Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, @Nullable Sort sort);
+
 }

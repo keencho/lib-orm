@@ -1,15 +1,10 @@
 package com.keencho.lib.orm.jpa.querydsl;
 
-import com.querydsl.core.types.EntityPath;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QBean;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.AbstractJPAQuery;
-import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.support.CrudMethodMetadata;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.Querydsl;
 import org.springframework.data.querydsl.EntityPathResolver;
@@ -30,7 +25,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     private final PathBuilder<?> builder;
     private final EntityManager entityManager;
 
-    public KcSearchQueryImpl(JpaEntityInformation<E, ?> entityInformation, EntityManager entityManager, EntityPathResolver resolver) {
+    public KcSearchQueryImpl(JpaEntityInformation<E, ?> entityInformation, EntityManager entityManager) {
         this.path = resolver.createPath(entityInformation.getJavaType());
         this.builder = new PathBuilder<E>(this.path.getType(), this.path.getMetadata());
         this.querydsl = new Querydsl(entityManager, this.builder);

@@ -1,8 +1,6 @@
 package com.keencho.lib.orm.test.service;
 
-import com.keencho.lib.orm.jpa.querydsl.repository.KcJpaRepository;
 import com.keencho.lib.orm.mapper.KcModelMapper;
-import com.keencho.lib.orm.test.model.MainOrder;
 import com.keencho.lib.orm.test.repository.MainOrderRepository;
 import com.keencho.lib.orm.test.vo.MainOrderVO;
 import org.springframework.beans.factory.annotation.Autowired;

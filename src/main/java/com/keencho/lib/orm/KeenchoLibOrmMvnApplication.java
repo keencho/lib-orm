@@ -8,15 +8,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import javax.persistence.EntityManager;
 
 @SpringBootApplication
-@EntityScan(basePackages = { "com.keencho.*" })
+@ComponentScan(basePackages = { "com.keencho.*" })
 @EnableJpaRepositories(
         repositoryFactoryBeanClass = KcJpaRepositoryFactoryBean.class,
-        basePackages = {"com.keencho.*"}
+        basePackages = { "com.keencho.*" }
 )
 public class KeenchoLibOrmMvnApplication {
 
