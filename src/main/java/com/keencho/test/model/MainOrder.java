@@ -43,10 +43,10 @@ public class MainOrder {
 
     private LocalDateTime completedDateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Rider pickupRider;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Rider deliveryRider;
 
 }

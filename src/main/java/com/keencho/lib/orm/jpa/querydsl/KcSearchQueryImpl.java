@@ -37,22 +37,22 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     //////////////////////////////////////////////////////////////// public method area
 
     @Override
-    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding) {
-        return this.findListProjections(predicate, projectionType, binding, null, null);
+    public List<E> findList(Predicate predicate, KcJoinHelper joinHelper, QSort sort) {
+        JPQLQuery<E> query = this.createQuery(predicate).select(this.path);
+
+        if (joinHelper != null) {
+            query = joinHelper.join(query);
+        }
+
+        if (sort != null) {
+            query = this.sort(null, sort, query);
+        }
+
+        return query.fetch();
     }
 
     @Override
-    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, KcJoinHelper joinHelper) {
-        return this.findListProjections(predicate, projectionType, binding, joinHelper, null);
-    }
-
-    @Override
-    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, QSort sort) {
-        return this.findListProjections(predicate, projectionType, binding, null, sort);
-    }
-
-    @Override
-    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, KcJoinHelper joinHelper, QSort sort) {
+    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, KcJoinHelper joinHelper, QSort sort) {
         Assert.notNull(projectionType, "projection type must not be null");
         Assert.notEmpty(binding, "bindings must not be empty");
 
@@ -72,7 +72,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
 
     //////////////////////////////////////////////////////////////// private method area
 
-    private AbstractJPAQuery<?, ?> doCreateQuery(@Nullable com.querydsl.core.types.Predicate... predicate) {
+    private JPQLQuery<?> createQuery(Predicate... predicate) {
         AbstractJPAQuery<?, ?> query = this.querydsl.createQuery(this.path);
         if (predicate != null) {
             query = query.where(predicate);
@@ -81,14 +81,13 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         return query;
     }
 
-    private JPQLQuery<?> createQuery(Predicate... predicate) {
-        return this.doCreateQuery(predicate);
-    }
-
-    private <Q> JPQLQuery<Q> sort (Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
-        Assert.notEmpty(bindings, "bindings must not be empty");
+    private <Q> JPQLQuery<Q> sort (@Nullable Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
         Assert.notNull(sort, "sort must not be null");
         Assert.notNull(query, "query must not be null");
+
+        if (bindings == null) {
+            return this.querydsl.applySorting(sort, query);
+        }
 
         if (sort.isUnsorted()) {
             return query;
