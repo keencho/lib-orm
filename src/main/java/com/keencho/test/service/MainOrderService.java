@@ -37,7 +37,7 @@ public class MainOrderService {
     }
 
     @Transactional(readOnly = true)
-    public Object test(String t) {
+    public Object test() {
         var bindings = new HashMap<String, Expression<?>>();
 
         var o = QMainOrder.mainOrder;
@@ -65,11 +65,6 @@ public class MainOrderService {
                 Q.mainOrder.id.desc()
         );
 
-        if (t.equals("1")) {
-            return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort);
-        } else {
-            return mainOrderRepository.findList(bb, MainOrderVO.class, null, sort);
-//            return mainOrderRepository.findAllCustom();
-        }
+        return mainOrderRepository.findList(bb, MainOrderVO.class, null, sort);
     }
 }

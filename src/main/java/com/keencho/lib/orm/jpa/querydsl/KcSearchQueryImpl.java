@@ -12,6 +12,7 @@ import org.springframework.data.querydsl.QSort;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Field;
@@ -58,7 +59,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         KcBindingGenerator classBindGenerator = projectionType.getAnnotation(KcBindingGenerator.class);
 
         if (classBindGenerator == null) {
-            throw new RuntimeException("KcBindingGenerator annotation must not be null");
+            throw new RuntimeException("KcBindGenerator annotation must be declared in the projection type class");
         }
 
         Map<String, Expression<?>> bindings = new HashMap<>();
@@ -84,14 +85,32 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             Field matchField = null;
 
             projectionField.setAccessible(true);
-            for (Field entityField : this.path.getClass().getDeclaredFields()) {
 
-                if (projectionField.getName().equals("pickupRiderId")) {
-                    try {
-                        Object object = entityField.get(this.path);
-                        var a = 0;
-                    } catch (Exception ignored) { }
-                }
+            for (Field entityField : this.path.getClass().getDeclaredFields()) {
+                try {
+                    Object object = entityField.get(this.path);
+
+                    if (object instanceof EntityPathBase) {
+                        if (this.path.getClass().getName().equals(object.getClass().getName())) {
+                            break;
+                        }
+                        var a = object;
+                        System.out.println(a);
+//                        String entityName = entityField.getName();
+//
+//                        // TODO: recursive!
+//                        List<Field> innerObjectFieldList = List.of(object.getClass().getDeclaredFields());
+//
+//                        for (Field field : innerObjectFieldList) {
+//                            String capitalizeFirstLetterFieldName = StringUtils.capitalize(field.getName());
+//
+//                            if (projectionField.getName().equals(entityName + capitalizeFirstLetterFieldName)) {
+//                                matchField = entityField;
+//                                break outerloop;
+//                            }
+//                        }
+                    }
+                } catch (Exception ignored) { }
 
                 if (projectionField.getName().equals(entityField.getName())) {
                     matchField = entityField;

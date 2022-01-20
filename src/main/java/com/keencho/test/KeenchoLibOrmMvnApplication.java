@@ -14,10 +14,9 @@ import javax.persistence.EntityManager;
 
 @SpringBootApplication
 @EnableJpaRepositories(
-        repositoryFactoryBeanClass = KcJpaRepositoryFactoryBean.class
-//        basePackages = { "com.keencho.test.*" }
+        repositoryFactoryBeanClass = KcJpaRepositoryFactoryBean.class,
+        basePackages = { "com.keencho.test.*" }
 )
-//@EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 public class KeenchoLibOrmMvnApplication {
 
     public static void main(String[] args) {
