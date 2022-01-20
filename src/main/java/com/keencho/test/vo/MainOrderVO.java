@@ -1,7 +1,7 @@
-package com.keencho.lib.orm.test.vo;
+package com.keencho.test.vo;
 
 import com.keencho.lib.orm.jpa.querydsl.KcQueryHandler;
-import com.keencho.lib.orm.test.model.OrderStatus;
+import com.keencho.test.model.OrderStatus;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.Data;

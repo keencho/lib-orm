@@ -55,7 +55,7 @@ public class KcJpaRepositoryFactoryBean<T extends Repository<S, ID>, S, ID> exte
             RepositoryFragments fragments = super.getRepositoryFragments(metadata);
 
             if (KcSearchQuery.class.isAssignableFrom(metadata.getRepositoryInterface())) {
-                JpaEntityInformation<?, ?> entityInformation = this.getEntityInformation(metadata.getDomainType());
+                JpaEntityInformation entityInformation = this.getEntityInformation(metadata.getDomainType());
 
                 Object impl = super.instantiateClass(
                         KcSearchQueryImpl.class,

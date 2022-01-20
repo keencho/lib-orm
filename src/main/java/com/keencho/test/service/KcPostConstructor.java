@@ -1,9 +1,9 @@
-package com.keencho.lib.orm.test.service;
+package com.keencho.test.service;
 
-import com.keencho.lib.orm.test.model.MainOrder;
-import com.keencho.lib.orm.test.model.Rider;
-import com.keencho.lib.orm.test.repository.MainOrderRepository;
-import com.keencho.lib.orm.test.repository.RiderRepository;
+import com.keencho.test.model.MainOrder;
+import com.keencho.test.model.Rider;
+import com.keencho.test.repository.MainOrderRepository;
+import com.keencho.test.repository.RiderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

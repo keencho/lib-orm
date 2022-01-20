@@ -1,4 +1,4 @@
-package com.keencho.lib.orm.test.config;
+package com.keencho.test.config;
 
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.appender.MessageFormattingStrategy;

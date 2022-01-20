@@ -1,7 +1,7 @@
-package com.keencho.lib.orm.test.controller;
+package com.keencho.test.controller;
 
-import com.keencho.lib.orm.test.service.MainOrderService;
-import com.keencho.lib.orm.test.vo.MainOrderVO;
+import com.keencho.test.service.MainOrderService;
+import com.keencho.test.vo.MainOrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

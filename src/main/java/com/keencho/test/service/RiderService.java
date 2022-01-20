@@ -1,4 +1,4 @@
-package com.keencho.lib.orm.test.service;
+package com.keencho.test.service;
 
 import org.springframework.stereotype.Service;
 

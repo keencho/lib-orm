@@ -1,7 +1,7 @@
-package com.keencho.lib.orm.test.repository;
+package com.keencho.test.repository;
 
-import com.keencho.lib.orm.test.model.MainOrder;
-import com.keencho.lib.orm.test.model.Rider;
+import com.keencho.test.model.MainOrder;
+import com.keencho.test.model.Rider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

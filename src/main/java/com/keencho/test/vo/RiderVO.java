@@ -1,4 +1,4 @@
-package com.keencho.lib.orm.test.vo;
+package com.keencho.test.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

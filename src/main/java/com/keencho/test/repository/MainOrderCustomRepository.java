@@ -1,6 +1,6 @@
-package com.keencho.lib.orm.test.repository;
+package com.keencho.test.repository;
 
-import com.keencho.lib.orm.test.vo.MainOrderVO;
+import com.keencho.test.vo.MainOrderVO;
 
 import java.util.List;
 

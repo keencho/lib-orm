@@ -1,4 +1,4 @@
-package com.keencho.lib.orm.test.model;
+package com.keencho.test.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
