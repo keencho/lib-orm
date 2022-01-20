@@ -16,9 +16,7 @@ import org.springframework.util.Assert;
 import javax.persistence.EntityManager;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,53 +55,57 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
 
     @Override
     public <P> List<P> findList(Predicate predicate, Class<P> projectionType, KcJoinHelper joinHelper, QSort sort) {
-        KcBindingGenerator bindGenerator = projectionType.getAnnotation(KcBindingGenerator.class);
+        KcBindingGenerator classBindGenerator = projectionType.getAnnotation(KcBindingGenerator.class);
 
-        if (bindGenerator == null) {
-            throw new RuntimeException("BindGenerator annotation must not be null");
+        if (classBindGenerator == null) {
+            throw new RuntimeException("KcBindingGenerator annotation must not be null");
         }
 
-        Map<String, Expression<?>> bindings = Stream.of(projectionType.getDeclaredFields())
-                .filter(field -> !Modifier.isStatic(field.getModifiers()))
-                .filter(field -> {
-                    KcBindingGenerator kcBindingGenerator = field.getAnnotation(KcBindingGenerator.class);
-                    if (kcBindingGenerator == null) {
-                        return true;
-                    }
+        Map<String, Expression<?>> bindings = new HashMap<>();
 
-                    return !kcBindingGenerator.except();
-                })
-                .collect(Collectors.toList())
-                .stream()
-                .map(field1 -> Stream.of(this.path.getClass().getDeclaredFields())
-                        .filter(field2 -> field2.getName().equals(field1.getName()))
-                        .findFirst()
-                        .orElse(null)
-                )
-                .filter(Objects::nonNull)
-                .filter(field -> {
-                    field.setAccessible(true);
-                    try {
-                        Object object = field.get(this.path);
-                        return !(object instanceof EntityPathBase);
-                    } catch (IllegalAccessException e) {
-                        throw new IllegalArgumentException("error occurred while reflect EntityBasePath");
-                    }
-                })
-                .collect(
-                        Collectors.toMap(
-                                Field::getName,
-                                (Field field) -> {
-                                    field.setAccessible(true);
-                                    try {
-//                                        if (!(object instanceof EntityPathBase)) {
-                                        return (Expression<?>) field.get(this.path);
-                                    } catch (IllegalAccessException e) {
-                                        throw new IllegalArgumentException("error occurred while reflect EntityBasePath");
-                                    }
-                                }
-                        )
-                );
+        List<Field> tempProjectionFieldList = List.of(projectionType.getDeclaredFields());
+        List<Field> projectionFieldList = new ArrayList<>();
+
+        for (Field field : tempProjectionFieldList) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            KcBindingGenerator fieldBindingGenerator = field.getAnnotation(KcBindingGenerator.class);
+
+            if (fieldBindingGenerator != null && fieldBindingGenerator.except()) {
+                continue;
+            }
+
+            projectionFieldList.add(field);
+        }
+
+        for (Field projectionField : projectionFieldList) {
+            Field matchField = null;
+            for (Field entityField : this.path.getClass().getDeclaredFields()) {
+                if (projectionField.getName().equals(entityField.getName())) {
+                    matchField = entityField;
+                    break;
+                }
+            }
+
+            if (matchField == null) {
+                continue;
+            }
+
+            matchField.setAccessible(true);
+
+            try {
+                Object object = matchField.get(this.path);
+                if (object instanceof EntityPathBase) {
+                    continue;
+                }
+
+                bindings.put(matchField.getName(), (Expression<?>) object);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException("error occurred while reflect EntityBasePath");
+            }
+        }
 
         return this.findList(predicate, projectionType, bindings, joinHelper, sort);
     }
