@@ -1,6 +1,7 @@
 package com.keencho.test.service;
 
 import com.keencho.test.model.MainOrder;
+import com.keencho.test.model.OrderStatus;
 import com.keencho.test.model.Rider;
 import com.keencho.test.repository.MainOrderRepository;
 import com.keencho.test.repository.RiderRepository;
@@ -80,6 +81,8 @@ public class KcPostConstructor {
 
         for (int i = 1; i <= 10; i ++) {
             MainOrder order = new MainOrder();
+
+            order.setOrderStatus(OrderStatus.RECEIVED);
 
             order.setFromName(randomElementSelector(nameList));
             order.setFromAddress(randomElementSelector(addressList));

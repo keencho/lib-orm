@@ -13,6 +13,8 @@ public interface KcSearchQuery<E> {
 
     List<E> findList(@Nullable Predicate predicate, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
 
-    <P> List<P> findList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> binding, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
+    <P> List<P> findList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
+
+    <P> List<P> findList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
 
 }

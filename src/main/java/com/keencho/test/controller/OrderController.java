@@ -33,8 +33,8 @@ public class OrderController {
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    @GetMapping("/test")
-    public Object test() {
-        return mainOrderService.test();
+    @GetMapping("/test/{t}")
+    public Object test(@PathVariable String t) {
+        return mainOrderService.test(t);
     }
 }

@@ -1,18 +1,15 @@
 package com.keencho.test.vo;
 
-import com.keencho.lib.orm.jpa.querydsl.KcQueryHandler;
+import com.keencho.lib.orm.jpa.querydsl.KcBindingGenerator;
 import com.keencho.test.model.OrderStatus;
-import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.JPQLQuery;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
+@KcBindingGenerator
 public class MainOrderVO {
 
     private Long id;
@@ -47,24 +44,19 @@ public class MainOrderVO {
 
     private RiderVO deliveryRider;
 
-    // QUERY-DSL
-    public static final Map<String, Expression<?>> bindings;
-    public static final KcQueryHandler queryHandler;
-
-    static {
-        bindings = new HashMap<>();
-
-        var q = Q.mainOrder;
-
-        bindings.put("id", q.id);
-
-        queryHandler = new KcQueryHandler() {
-
-            @Override
-            public <T> JPQLQuery<T> apply(JPQLQuery<T> query) {
-                return query;
-            }
-        };
-
+    public MainOrderVO(Long id, OrderStatus orderStatus, String fromName, String fromAddress, String fromPhoneNumber, String toName, String toAddress, String toPhoneNumber, String itemName, int itemQty, LocalDateTime createdDateTime, LocalDateTime pickupDateTime, LocalDateTime completedDateTime) {
+        this.id = id;
+        this.orderStatus = orderStatus;
+        this.fromName = fromName;
+        this.fromAddress = fromAddress;
+        this.fromPhoneNumber = fromPhoneNumber;
+        this.toName = toName;
+        this.toAddress = toAddress;
+        this.toPhoneNumber = toPhoneNumber;
+        this.itemName = itemName;
+        this.itemQty = itemQty;
+        this.createdDateTime = createdDateTime;
+        this.pickupDateTime = pickupDateTime;
+        this.completedDateTime = completedDateTime;
     }
 }

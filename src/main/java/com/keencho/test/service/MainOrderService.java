@@ -2,6 +2,7 @@ package com.keencho.test.service;
 
 import com.keencho.lib.orm.jpa.querydsl.KcJoinHelper;
 import com.keencho.lib.orm.mapper.KcModelMapper;
+import com.keencho.test.model.QMainOrder;
 import com.keencho.test.repository.MainOrderRepository;
 import com.keencho.test.vo.MainOrderVO;
 import com.keencho.test.vo.Q;
@@ -36,11 +37,10 @@ public class MainOrderService {
     }
 
     @Transactional(readOnly = true)
-    public Object test() {
+    public Object test(String t) {
         var bindings = new HashMap<String, Expression<?>>();
 
-        var o = Q.mainOrder;
-        var r = Q.rider;
+        var o = QMainOrder.mainOrder;
 
         bindings.put("id", o.id);
         bindings.put("orderStatus", o.orderStatus);
@@ -65,6 +65,11 @@ public class MainOrderService {
                 Q.mainOrder.id.desc()
         );
 
-        return mainOrderRepository.findList(bb, null, sort);
+        if (t.equals("1")) {
+            return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort);
+        } else {
+            return mainOrderRepository.findList(bb, MainOrderVO.class, null, sort);
+//            return mainOrderRepository.findAllCustom();
+        }
     }
 }
