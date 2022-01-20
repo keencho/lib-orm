@@ -23,21 +23,11 @@ public class MainOrderService {
 
     @Transactional(readOnly = true)
     public List<MainOrderVO> listAll() {
-        var bindings = new HashMap<String, Expression<?>>();
-
-        var q = Q.mainOrder;
-
-        bindings.put("id", q.id);
-        bindings.put("orderStatus", q.orderStatus);
-        bindings.put("fromName", q.fromName);
-
-        return mainOrderRepository.selectList(null, MainOrderVO.class, bindings, null);
-//        return kcModelMapper.mapList(mainOrderRepository.findAll(), MainOrderVO.class);
+        return kcModelMapper.mapList(mainOrderRepository.findAll(), MainOrderVO.class);
     }
 
     @Transactional(readOnly = true)
     public MainOrderVO findById(Long id) {
-//        return mainOrderRepository.findByIdCustom(id);
         return kcModelMapper.mapOne(mainOrderRepository.findById(id).orElse(null), MainOrderVO.class);
     }
 }

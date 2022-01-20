@@ -1,5 +1,6 @@
 package com.keencho.lib.orm.jpa.querydsl;
 
+import com.keencho.test.vo.Q;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.Querydsl;
 import org.springframework.data.querydsl.EntityPathResolver;
+import org.springframework.data.querydsl.QSort;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -32,6 +34,44 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         this.entityManager = entityManager;
     }
 
+    //////////////////////////////////////////////////////////////// public method area
+
+    @Override
+    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding) {
+        return this.findListProjections(predicate, projectionType, binding, null, null);
+    }
+
+    @Override
+    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, KcJoinHelper joinHelper) {
+        return this.findListProjections(predicate, projectionType, binding, joinHelper, null);
+    }
+
+    @Override
+    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, QSort sort) {
+        return this.findListProjections(predicate, projectionType, binding, null, sort);
+    }
+
+    @Override
+    public <P> List<P> findListProjections(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, KcJoinHelper joinHelper, QSort sort) {
+        Assert.notNull(projectionType, "projection type must not be null");
+        Assert.notEmpty(binding, "bindings must not be empty");
+
+        QBean<P> expression = Projections.bean(projectionType, binding);
+        JPQLQuery<P> query = this.createQuery(predicate).select(expression);
+
+        if (joinHelper != null) {
+            query = joinHelper.join(query);
+        }
+
+        if (sort != null) {
+            query = this.sort(binding, sort, query);
+        }
+
+        return query.fetch();
+    }
+
+    //////////////////////////////////////////////////////////////// private method area
+
     private AbstractJPAQuery<?, ?> doCreateQuery(@Nullable com.querydsl.core.types.Predicate... predicate) {
         AbstractJPAQuery<?, ?> query = this.querydsl.createQuery(this.path);
         if (predicate != null) {
@@ -45,14 +85,17 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         return this.doCreateQuery(predicate);
     }
 
-    @Override
-    public <P> List<P> selectList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> binding, Sort sort) {
-        Assert.notNull(projectionType, "projection type must not be null");
-        Assert.notEmpty(binding, "bindings must not be empty");
+    private <Q> JPQLQuery<Q> sort (Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
+        Assert.notEmpty(bindings, "bindings must not be empty");
+        Assert.notNull(sort, "sort must not be null");
+        Assert.notNull(query, "query must not be null");
 
-        QBean<P> expression = Projections.bean(projectionType, binding);
-        JPQLQuery<P> query = this.createQuery(predicate).select(expression);
+        if (sort.isUnsorted()) {
+            return query;
+        }
 
-        return query.fetch();
+        List<OrderSpecifier<?>> orderSpecifierList = sort.getOrderSpecifiers();
+
+        return query.orderBy(orderSpecifierList.toArray(new OrderSpecifier[0]));
     }
 }
