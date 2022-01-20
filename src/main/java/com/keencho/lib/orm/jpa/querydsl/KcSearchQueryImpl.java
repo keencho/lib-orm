@@ -82,11 +82,22 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
 
         for (Field projectionField : projectionFieldList) {
             Field matchField = null;
+
+            projectionField.setAccessible(true);
             for (Field entityField : this.path.getClass().getDeclaredFields()) {
+
+                if (projectionField.getName().equals("pickupRiderId")) {
+                    try {
+                        Object object = entityField.get(this.path);
+                        var a = 0;
+                    } catch (Exception ignored) { }
+                }
+
                 if (projectionField.getName().equals(entityField.getName())) {
                     matchField = entityField;
                     break;
                 }
+
             }
 
             if (matchField == null) {
