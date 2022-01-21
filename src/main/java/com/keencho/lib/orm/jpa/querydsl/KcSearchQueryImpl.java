@@ -55,9 +55,10 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, KcJoinHelper joinHelper, QSort sort) {
+    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, KcJoinHelper joinHelper, QSort sort) throws IllegalAccessException {
         KcBindingGenerator classBindGenerator = projectionType.getAnnotation(KcBindingGenerator.class);
 
+        // KcBindGenerator annotation must be declared in 'root parent' projection type class
         if (classBindGenerator == null) {
             throw new RuntimeException("KcBindGenerator annotation must be declared in the projection type class");
         }
@@ -65,52 +66,45 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         Map<String, Expression<?>> bindings = new HashMap<>();
 
         List<Field> tempProjectionFieldList = List.of(projectionType.getDeclaredFields());
+
         List<Field> projectionFieldList = new ArrayList<>();
+        List<Field> projectionEntityFieldList = new ArrayList<>();
 
-        for (Field field : tempProjectionFieldList) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
+        // first, filtering pure field and entity field list
+        for (Field entityField : this.path.getClass().getDeclaredFields()) {
+            entityField.setAccessible(true);
+
+            Object object = entityField.get(this.path);
+
+            if (object instanceof EntityPathBase) {
+                if (this.path.getClass() == object.getClass()) {
+                    for (Field field : tempProjectionFieldList) {
+                        if (Modifier.isStatic(field.getModifiers())) {
+                            continue;
+                        }
+
+                        KcBindingGenerator fieldBindingGenerator = field.getAnnotation(KcBindingGenerator.class);
+
+                        // except field which has annotation and except option is true
+                        if (fieldBindingGenerator != null && fieldBindingGenerator.except()) {
+                            continue;
+                        }
+
+                        projectionFieldList.add(field);
+                    }
+                } else {
+                    projectionEntityFieldList.add(entityField);
+                }
             }
-
-            KcBindingGenerator fieldBindingGenerator = field.getAnnotation(KcBindingGenerator.class);
-
-            if (fieldBindingGenerator != null && fieldBindingGenerator.except()) {
-                continue;
-            }
-
-            projectionFieldList.add(field);
         }
 
+        // second, matching key and value of root parent projection class
         for (Field projectionField : projectionFieldList) {
             Field matchField = null;
 
             projectionField.setAccessible(true);
 
             for (Field entityField : this.path.getClass().getDeclaredFields()) {
-                try {
-                    Object object = entityField.get(this.path);
-
-                    if (object instanceof EntityPathBase) {
-                        if (this.path.getClass().getName().equals(object.getClass().getName())) {
-                            break;
-                        }
-                        var a = object;
-                        System.out.println(a);
-//                        String entityName = entityField.getName();
-//
-//                        // TODO: recursive!
-//                        List<Field> innerObjectFieldList = List.of(object.getClass().getDeclaredFields());
-//
-//                        for (Field field : innerObjectFieldList) {
-//                            String capitalizeFirstLetterFieldName = StringUtils.capitalize(field.getName());
-//
-//                            if (projectionField.getName().equals(entityName + capitalizeFirstLetterFieldName)) {
-//                                matchField = entityField;
-//                                break outerloop;
-//                            }
-//                        }
-                    }
-                } catch (Exception ignored) { }
 
                 if (projectionField.getName().equals(entityField.getName())) {
                     matchField = entityField;
@@ -125,16 +119,17 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
 
             matchField.setAccessible(true);
 
-            try {
-                Object object = matchField.get(this.path);
-                if (object instanceof EntityPathBase) {
-                    continue;
-                }
-
-                bindings.put(matchField.getName(), (Expression<?>) object);
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException("error occurred while reflect EntityBasePath");
+            Object object = matchField.get(this.path);
+            if (object instanceof EntityPathBase) {
+                continue;
             }
+
+            bindings.put(matchField.getName(), (Expression<?>) object);
+        }
+
+        // third, match Object projection
+        for (Field entityField : projectionEntityFieldList) {
+            System.out.println(entityField);
         }
 
         return this.findList(predicate, projectionType, bindings, joinHelper, sort);

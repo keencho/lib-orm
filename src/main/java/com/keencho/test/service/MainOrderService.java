@@ -1,11 +1,13 @@
 package com.keencho.test.service;
 
 import com.keencho.lib.orm.jpa.querydsl.KcJoinHelper;
+import com.keencho.lib.orm.jpa.querydsl.util.KcReflectionUtil;
 import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.keencho.test.model.QMainOrder;
 import com.keencho.test.repository.MainOrderRepository;
 import com.keencho.test.vo.MainOrderVO;
 import com.keencho.test.vo.Q;
+import com.keencho.test.vo.QRiderVO;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPQLQuery;
@@ -37,7 +39,7 @@ public class MainOrderService {
     }
 
     @Transactional(readOnly = true)
-    public Object test() {
+    public Object test() throws IllegalAccessException {
         var bindings = new HashMap<String, Expression<?>>();
 
         var o = QMainOrder.mainOrder;
@@ -46,6 +48,7 @@ public class MainOrderService {
         bindings.put("orderStatus", o.orderStatus);
         bindings.put("fromName", o.fromName);
         bindings.put("toName", o.pickupRider.name);
+        bindings.put("pickupRider", buildQRiderVO(o, true));
 
         BooleanBuilder bb = new BooleanBuilder();
 
@@ -55,7 +58,7 @@ public class MainOrderService {
             @Override
             public <T> JPQLQuery<T> join(JPQLQuery<T> query) {
                 return query
-                        .rightJoin(Q.mainOrder.pickupRider)
+                        .leftJoin(Q.mainOrder.pickupRider)
                         .leftJoin(Q.mainOrder.deliveryRider);
             }
         };
@@ -65,6 +68,24 @@ public class MainOrderService {
                 Q.mainOrder.id.desc()
         );
 
-        return mainOrderRepository.findList(bb, MainOrderVO.class, null, sort);
+        return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort);
+    }
+
+    public QRiderVO buildQRiderVO(QMainOrder mainOrder, boolean isPickup) {
+        var q = isPickup ? mainOrder.pickupRider : mainOrder.deliveryRider;
+
+        try {
+            var a = KcReflectionUtil.bindQueryDSLObject(q.getClass(), QRiderVO.class);
+        } catch (Exception ex) {
+
+        }
+
+        return new QRiderVO(
+                q.id,
+                q.name,
+                q.loginId,
+                q.password,
+                q.phoneNumber
+        );
     }
 }

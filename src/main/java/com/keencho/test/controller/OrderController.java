@@ -34,7 +34,7 @@ public class OrderController {
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     @GetMapping("/test")
-    public Object test() {
+    public Object test() throws IllegalAccessException {
         return mainOrderService.test();
     }
 }

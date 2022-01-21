@@ -40,8 +40,6 @@ public class MainOrderVO {
 
     private Long pickupRiderId;
 
-    private String pickupRiderString;
-
     private RiderVO pickupRider;
 
     private RiderVO deliveryRider;
