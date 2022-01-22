@@ -127,11 +127,6 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             bindings.put(matchField.getName(), (Expression<?>) object);
         }
 
-        // third, match Object projection
-        for (Field entityField : projectionEntityFieldList) {
-            System.out.println(entityField);
-        }
-
         return this.findList(predicate, projectionType, bindings, joinHelper, sort);
     }
 
