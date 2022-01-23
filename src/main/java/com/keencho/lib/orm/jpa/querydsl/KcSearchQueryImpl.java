@@ -105,12 +105,10 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             projectionField.setAccessible(true);
 
             for (Field entityField : this.path.getClass().getDeclaredFields()) {
-
                 if (projectionField.getName().equals(entityField.getName())) {
                     matchField = entityField;
                     break;
                 }
-
             }
 
             if (matchField == null) {

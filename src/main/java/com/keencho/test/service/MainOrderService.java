@@ -75,17 +75,9 @@ public class MainOrderService {
         var q = isPickup ? mainOrder.pickupRider : mainOrder.deliveryRider;
 
         try {
-            var a = KcReflectionUtil.bindQueryDSLObject(q.getClass(), QRiderVO.class);
+            return KcReflectionUtil.bindQueryDSLObject(q, QRiderVO.class);
         } catch (Exception ex) {
-
+            return null;
         }
-
-        return new QRiderVO(
-                q.id,
-                q.name,
-                q.loginId,
-                q.password,
-                q.phoneNumber
-        );
     }
 }
