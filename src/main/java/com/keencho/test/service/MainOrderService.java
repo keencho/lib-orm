@@ -1,6 +1,6 @@
 package com.keencho.test.service;
 
-import com.keencho.lib.orm.jpa.querydsl.util.KcQueryDSLBindingUtil;
+import com.keencho.lib.orm.jpa.querydsl.util.KcBindingUtil;
 import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.keencho.test.model.QMainOrder;
 import com.keencho.test.repository.MainOrderRepository;
@@ -41,8 +41,15 @@ public class MainOrderService {
 
         var o = QMainOrder.mainOrder;
 
-        KcQueryDSLBindingUtil.putBindings(bindings, "pickupRider", o.pickupRider, QRiderVO.class);
-        KcQueryDSLBindingUtil.putBindings(bindings, "deliveryRider", o.pickupRider, QRiderVO.class);
+//        bindings.put("id", o.id);
+//        bindings.put("orderStatus", o.orderStatus);
+//        bindings.put("fromName", o.fromName);
+
+//        bindings.put("toName", o.pickupRider.phoneNumber);
+
+        bindings.put("pickupRiderId", o.pickupRider.id);
+        KcBindingUtil.buildAndPutBinding(bindings, "pickupRider", o.pickupRider, QRiderVO.class);
+        KcBindingUtil.buildAndPutBinding(bindings, "deliveryRider", o.pickupRider, QRiderVO.class);
 
         BooleanBuilder bb = new BooleanBuilder();
 
@@ -62,6 +69,6 @@ public class MainOrderService {
                 o.mainOrder.id.desc()
         );
 
-        return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort);
+        return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort, true);
     }
 }

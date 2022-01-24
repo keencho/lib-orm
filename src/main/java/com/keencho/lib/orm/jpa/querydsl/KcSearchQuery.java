@@ -17,4 +17,6 @@ public interface KcSearchQuery<E> {
 
     <P> List<P> findList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
 
+    <P> List<P> findList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort, boolean bindDefaultIfSameKey);
+
 }

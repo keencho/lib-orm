@@ -12,7 +12,6 @@ import org.springframework.data.querydsl.QSort;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Field;
@@ -63,6 +62,72 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             throw new RuntimeException("KcBindGenerator annotation must be declared in the projection type class");
         }
 
+        return this.findList(predicate, projectionType, buildExpressionBindings(projectionType), joinHelper, sort);
+    }
+
+    @Override
+    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
+        return this.findList(predicate, projectionType, bindings, joinHelper, sort, false);
+    }
+
+    @Override
+    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort, boolean bindDefaultIfSameKey) {
+
+        if (bindDefaultIfSameKey) {
+            try {
+                Map<String, Expression<?>> defaultBindings = buildExpressionBindings(projectionType);
+                defaultBindings.forEach((key, value) -> bindings.merge(key, value, (v1, v2) -> v1));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Assert.notNull(projectionType, "projection type must not be null");
+        Assert.notEmpty(bindings, "bindings must not be empty");
+
+        QBean<P> expression = Projections.bean(projectionType, bindings);
+        JPQLQuery<P> query = this.createQuery(predicate).select(expression);
+
+        if (joinHelper != null) {
+            query = joinHelper.join(query);
+        }
+
+        if (sort != null) {
+            query = this.sort(bindings, sort, query);
+        }
+
+        return query.fetch();
+    }
+
+    //////////////////////////////////////////////////////////////// private method area
+
+    private JPQLQuery<?> createQuery(Predicate... predicate) {
+        AbstractJPAQuery<?, ?> query = this.querydsl.createQuery(this.path);
+        if (predicate != null) {
+            query = query.where(predicate);
+        }
+
+        return query;
+    }
+
+    private <Q> JPQLQuery<Q> sort (@Nullable Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
+        Assert.notNull(sort, "sort must not be null");
+        Assert.notNull(query, "query must not be null");
+
+        if (bindings == null) {
+            return this.querydsl.applySorting(sort, query);
+        }
+
+        if (sort.isUnsorted()) {
+            return query;
+        }
+
+        List<OrderSpecifier<?>> orderSpecifierList = sort.getOrderSpecifiers();
+
+        return query.orderBy(orderSpecifierList.toArray(new OrderSpecifier[0]));
+    }
+
+    private <P> Map<String, Expression<?>> buildExpressionBindings(Class<P> projectionType) throws IllegalAccessException {
         Map<String, Expression<?>> bindings = new HashMap<>();
 
         List<Field> tempProjectionFieldList = List.of(projectionType.getDeclaredFields());
@@ -125,53 +190,6 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             bindings.put(matchField.getName(), (Expression<?>) object);
         }
 
-        return this.findList(predicate, projectionType, bindings, joinHelper, sort);
-    }
-
-    @Override
-    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
-        Assert.notNull(projectionType, "projection type must not be null");
-        Assert.notEmpty(bindings, "bindings must not be empty");
-
-        QBean<P> expression = Projections.bean(projectionType, bindings);
-        JPQLQuery<P> query = this.createQuery(predicate).select(expression);
-
-        if (joinHelper != null) {
-            query = joinHelper.join(query);
-        }
-
-        if (sort != null) {
-            query = this.sort(bindings, sort, query);
-        }
-
-        return query.fetch();
-    }
-
-    //////////////////////////////////////////////////////////////// private method area
-
-    private JPQLQuery<?> createQuery(Predicate... predicate) {
-        AbstractJPAQuery<?, ?> query = this.querydsl.createQuery(this.path);
-        if (predicate != null) {
-            query = query.where(predicate);
-        }
-
-        return query;
-    }
-
-    private <Q> JPQLQuery<Q> sort (@Nullable Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
-        Assert.notNull(sort, "sort must not be null");
-        Assert.notNull(query, "query must not be null");
-
-        if (bindings == null) {
-            return this.querydsl.applySorting(sort, query);
-        }
-
-        if (sort.isUnsorted()) {
-            return query;
-        }
-
-        List<OrderSpecifier<?>> orderSpecifierList = sort.getOrderSpecifiers();
-
-        return query.orderBy(orderSpecifierList.toArray(new OrderSpecifier[0]));
+        return bindings;
     }
 }

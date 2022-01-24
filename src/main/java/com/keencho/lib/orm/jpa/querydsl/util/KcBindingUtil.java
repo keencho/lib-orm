@@ -1,7 +1,5 @@
 package com.keencho.lib.orm.jpa.querydsl.util;
 
-import com.keencho.test.model.QRider;
-import com.keencho.test.vo.QRiderVO;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -16,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class KcQueryDSLBindingUtil {
+public class KcBindingUtil {
 
     /**
      * This method maps only keys with the same field name of the data object and the entity.
@@ -53,15 +51,15 @@ public class KcQueryDSLBindingUtil {
         return null;
     }
 
-    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void putBindings(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass) {
-        putBindings(bindings, key, entityClass, projectionClass, null);
+    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void buildAndPutBinding(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass) {
+        buildAndPutBinding(bindings, key, entityClass, projectionClass, null);
     }
 
     /**
      * build querydsl constructor and put into binding
-     * ignore put if querydsl constructor instance is null
+     * ignore if querydsl constructor instance is null
      */
-    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void putBindings(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass, @Nullable Runnable functionOnFailure) {
+    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void buildAndPutBinding(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass, @Nullable Runnable functionOnFailure) {
         P projection = buildConstructor(entityClass, projectionClass);
 
         if (projection == null) {
