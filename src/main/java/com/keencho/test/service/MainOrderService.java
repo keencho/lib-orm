@@ -1,5 +1,6 @@
 package com.keencho.test.service;
 
+import com.keencho.lib.orm.jpa.querydsl.KcJoinHelper;
 import com.keencho.lib.orm.jpa.querydsl.util.KcBindingUtil;
 import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.keencho.test.model.QMainOrder;
@@ -8,6 +9,7 @@ import com.keencho.test.vo.MainOrderVO;
 import com.keencho.test.vo.QRiderVO;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
+import com.querydsl.jpa.JPQLQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.querydsl.QSort;
 import org.springframework.stereotype.Service;
@@ -55,14 +57,14 @@ public class MainOrderService {
 
         bb.and(o.fromName.contains("김"));
 
-//        KcJoinHelper joinHelper = new KcJoinHelper() {
-//            @Override
-//            public <T> JPQLQuery<T> join(JPQLQuery<T> query) {
-//                return query
-//                        .leftJoin(Q.mainOrder.pickupRider)
-//                        .leftJoin(Q.mainOrder.deliveryRider);
-//            }
-//        };
+        KcJoinHelper joinHelper = new KcJoinHelper() {
+            @Override
+            public <T> JPQLQuery<T> join(JPQLQuery<T> query) {
+                return query
+                        .leftJoin(o.pickupRider)
+                        .leftJoin(o.deliveryRider);
+            }
+        };
 
         QSort sort = new QSort(
                 o.mainOrder.fromName.desc(),
