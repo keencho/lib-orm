@@ -6,6 +6,7 @@ import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.keencho.test.model.QMainOrder;
 import com.keencho.test.repository.MainOrderRepository;
 import com.keencho.test.vo.MainOrderVO;
+import com.keencho.test.vo.Q;
 import com.keencho.test.vo.QRiderVO;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
@@ -43,12 +44,6 @@ public class MainOrderService {
 
         var o = QMainOrder.mainOrder;
 
-//        bindings.put("id", o.id);
-//        bindings.put("orderStatus", o.orderStatus);
-//        bindings.put("fromName", o.fromName);
-
-//        bindings.put("toName", o.pickupRider.phoneNumber);
-
         bindings.put("pickupRiderId", o.pickupRider.id);
         KcBindingUtil.buildAndPutBinding(bindings, "pickupRider", o.pickupRider, QRiderVO.class);
         KcBindingUtil.buildAndPutBinding(bindings, "deliveryRider", o.pickupRider, QRiderVO.class);
@@ -72,5 +67,36 @@ public class MainOrderService {
         );
 
         return mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, sort, true);
+    }
+
+    @Transactional(readOnly = true)
+    public Object testPaging() throws IllegalAccessException {
+        var bindings = new HashMap<String, Expression<?>>();
+
+        var o = QMainOrder.mainOrder;
+
+        bindings.put("pickupRiderId", o.pickupRider.id);
+        KcBindingUtil.buildAndPutBinding(bindings, "pickupRider", o.pickupRider, QRiderVO.class);
+        KcBindingUtil.buildAndPutBinding(bindings, "deliveryRider", o.pickupRider, QRiderVO.class);
+
+        BooleanBuilder bb = new BooleanBuilder();
+
+        bb.and(o.fromName.contains("김"));
+
+        KcJoinHelper joinHelper = new KcJoinHelper() {
+            @Override
+            public <T> JPQLQuery<T> join(JPQLQuery<T> query) {
+                return query
+                        .leftJoin(o.pickupRider)
+                        .leftJoin(o.deliveryRider);
+            }
+        };
+
+        QSort sort = new QSort(
+                o.mainOrder.fromName.desc(),
+                o.mainOrder.id.desc()
+        );
+
+        return mainOrderRepository.findPage(bb, MainOrderVO.class, bindings, null, sort);
     }
 }

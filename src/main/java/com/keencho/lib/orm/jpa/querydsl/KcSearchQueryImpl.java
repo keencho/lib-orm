@@ -1,5 +1,6 @@
 package com.keencho.lib.orm.jpa.querydsl;
 
+import com.keencho.lib.orm.support.KcPage;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -97,6 +98,26 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         }
 
         return query.fetch();
+    }
+
+    @Override
+    public <P> KcPage<P> findPage(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
+        Assert.notNull(projectionType, "projection type must not be null");
+        Assert.notEmpty(bindings, "bindings must not be empty");
+
+        QBean<P> expression = Projections.bean(projectionType, bindings);
+
+        JPQLQuery<?> countQuery = this.createQuery(predicate);
+        JPQLQuery<P> query = countQuery.select(expression);
+
+        query.offset(0);
+        query.limit(3L);
+
+        List<P> data = query.fetch();
+
+        long total = countQuery.fetchCount();
+
+        return new KcPage<P>(0, total, total, data);
     }
 
     //////////////////////////////////////////////////////////////// private method area

@@ -37,4 +37,9 @@ public class OrderController {
     public Object test() throws IllegalAccessException {
         return mainOrderService.test();
     }
+
+    @GetMapping("/test/page")
+    public Object testPage() throws IllegalAccessException {
+        return mainOrderService.testPaging();
+    }
 }
