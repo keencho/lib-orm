@@ -68,9 +68,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.gavlyukovskiy</groupId>
-            <artifactId>p6spy-spring-boot-starter</artifactId>
-            <version>1.7.1</version>
+            <groupId>com.keencho.lib</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>1.0</version>
         </dependency>
         <!-- remove... -->
 
@@ -98,5 +98,17 @@
 
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>release</id>
+            <url>https://github.com/keencho/keencho-maven-repository/raw/master/releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url>https://github.com/keencho/keencho-maven-repository/raw/master/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
