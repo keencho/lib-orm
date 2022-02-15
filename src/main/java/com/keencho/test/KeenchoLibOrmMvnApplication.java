@@ -1,5 +1,6 @@
 package com.keencho.test;
 
+import com.keencho.lib.custom.p6spy.CustomP6spyConfig;
 import com.keencho.lib.orm.jpa.querydsl.repository.KcJpaRepositoryFactoryBean;
 import com.keencho.lib.orm.mapper.KcModelMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,6 +17,10 @@ import javax.persistence.EntityManager;
 @EnableJpaRepositories(
         repositoryFactoryBeanClass = KcJpaRepositoryFactoryBean.class,
         basePackages = { "com.keencho.test.*" }
+)
+@ComponentScan(
+        basePackages = { "com.keencho.test*" },
+        basePackageClasses = { CustomP6spyConfig.class }
 )
 public class KeenchoLibOrmMvnApplication {
 

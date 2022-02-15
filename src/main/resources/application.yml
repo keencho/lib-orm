@@ -16,4 +16,7 @@ spring:
 decorator:
   datasource:
     p6spy:
-      enable-logging:
+      enable-logging: true
+keencho:
+  p6spy:
+    start-package: com.keencho.test

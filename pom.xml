@@ -20,6 +20,13 @@
         <java.version>11</java.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <dependency>
@@ -68,10 +75,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.keencho.lib</groupId>
-            <artifactId>p6spy</artifactId>
-            <version>1.0</version>
+            <groupId>com.github.keencho</groupId>
+            <artifactId>lib-custom-p6spy</artifactId>
+            <version>1.0.2</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.keencho.lib</groupId>-->
+<!--            <artifactId>keencho-p6spy</artifactId>-->
+<!--            <version>1.0.2</version>-->
+<!--        </dependency>-->
         <!-- remove... -->
 
     </dependencies>
@@ -102,12 +115,12 @@
     <distributionManagement>
         <repository>
             <id>release</id>
-            <url>https://github.com/keencho/keencho-maven-repository/raw/master/releases</url>
+            <url>https://github.com/keencho/maven-test-repo/raw/master/releases</url>
         </repository>
 
         <snapshotRepository>
             <id>snapshot</id>
-            <url>https://github.com/keencho/keencho-maven-repository/raw/master/snapshots</url>
+            <url>https://github.com/keencho/maven-test-repo/raw/master/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 

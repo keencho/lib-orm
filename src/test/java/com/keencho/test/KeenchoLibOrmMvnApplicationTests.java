@@ -1,21 +1,31 @@
-package com.keencho.test.service;
+package com.keencho.test;
 
+import com.keencho.lib.orm.jpa.querydsl.util.KcBindingUtil;
 import com.keencho.test.model.MainOrder;
 import com.keencho.test.model.OrderStatus;
+import com.keencho.test.model.QMainOrder;
 import com.keencho.test.model.Rider;
 import com.keencho.test.repository.MainOrderRepository;
 import com.keencho.test.repository.RiderRepository;
+import com.keencho.test.vo.MainOrderVO;
+import com.keencho.test.vo.QRiderVO;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.EntityPath;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.dsl.EntityPathBase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-@Service
-public class KcPostConstructor {
+@SpringBootTest
+class KeenchoLibOrmMvnApplicationTests {
 
     @Autowired
     MainOrderRepository mainOrderRepository;
@@ -23,8 +33,35 @@ public class KcPostConstructor {
     @Autowired
     RiderRepository riderRepository;
 
-    @PostConstruct
-    public void initData() {
+    @Test
+    void test() {
+
+        var order = QMainOrder.mainOrder;
+
+        BooleanBuilder bb = new BooleanBuilder();
+
+        bb.and(order.fromName.contains("김"));
+
+        var bindings = KcBindingUtil.buildBindingsViaReflection(order, MainOrderVO.class);
+
+        bindings.put("pickupRiderId", QMainOrder.mainOrder.pickupRider.id);
+        bindings.put("pickupRider", new QRiderVO(
+                QMainOrder.mainOrder.pickupRider.id,
+                QMainOrder.mainOrder.pickupRider.name,
+                QMainOrder.mainOrder.pickupRider.loginId,
+                QMainOrder.mainOrder.pickupRider.password,
+                QMainOrder.mainOrder.pickupRider.phoneNumber
+        ));
+
+        var re = mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, null);
+
+        System.out.println(re);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @BeforeEach
+    void initData() {
         Rider r1 = new Rider();
 
         r1.setName("조세영");
@@ -102,7 +139,6 @@ public class KcPostConstructor {
 
             mainOrderRepository.save(order);
         }
-
     }
 
     private <T> T randomElementSelector (List<T> list) {
