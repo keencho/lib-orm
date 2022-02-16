@@ -10,19 +10,16 @@ import com.keencho.test.repository.RiderRepository;
 import com.keencho.test.vo.MainOrderVO;
 import com.keencho.test.vo.QRiderVO;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.EntityPath;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.dsl.EntityPathBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.querydsl.QSort;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @SpringBootTest
 class KeenchoLibOrmMvnApplicationTests {
@@ -53,9 +50,150 @@ class KeenchoLibOrmMvnApplicationTests {
                 QMainOrder.mainOrder.pickupRider.phoneNumber
         ));
 
-        var re = mainOrderRepository.findList(bb, MainOrderVO.class, bindings, null, null);
+        var re = mainOrderRepository.select(bb, MainOrderVO.class, bindings, null, null);
 
         System.out.println(re);
+    }
+
+    @Test
+    void pageTest() {
+        var order = QMainOrder.mainOrder;
+
+        BooleanBuilder bb = new BooleanBuilder();
+
+        bb.and(order.fromName.contains("김"));
+
+        var bindings = KcBindingUtil.buildBindingsViaReflection(order, MainOrderVO.class);
+
+        bindings.put("pickupRiderId", QMainOrder.mainOrder.pickupRider.id);
+        bindings.put("pickupRider", new QRiderVO(
+                QMainOrder.mainOrder.pickupRider.id,
+                QMainOrder.mainOrder.pickupRider.name,
+                QMainOrder.mainOrder.pickupRider.loginId,
+                QMainOrder.mainOrder.pickupRider.password,
+                QMainOrder.mainOrder.pickupRider.phoneNumber
+        ));
+
+        Pageable pageable = new Pageable() {
+            @Override
+            public int getPageNumber() {
+                return 0;
+            }
+
+            @Override
+            public int getPageSize() {
+                return 10;
+            }
+
+            @Override
+            public long getOffset() {
+                return 0;
+            }
+
+            @Override
+            public Sort getSort() {
+                var a = new Sort.Order(Sort.Direction.ASC, "fromName");
+                var b = new Sort.Order(Sort.Direction.DESC, "toName");
+
+                return Sort.by(List.of(a, b));
+
+//                return new QSort(order.fromName.asc(), order.toName.desc());
+            }
+
+            @Override
+            public Pageable next() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousOrFirst() {
+                return null;
+            }
+
+            @Override
+            public Pageable first() {
+                return null;
+            }
+
+            @Override
+            public Pageable withPage(int pageNumber) {
+                return null;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+        };
+
+        var result = mainOrderRepository.selectPage(bb, MainOrderVO.class, bindings, null, pageable);
+
+        System.out.println(result);
+    }
+
+    @Test
+    void pageEntityTest() {
+        var order = QMainOrder.mainOrder;
+
+        BooleanBuilder bb = new BooleanBuilder();
+
+        bb.and(order.fromName.contains("김"));
+
+        Pageable pageable = new Pageable() {
+            @Override
+            public int getPageNumber() {
+                return 0;
+            }
+
+            @Override
+            public int getPageSize() {
+                return 10;
+            }
+
+            @Override
+            public long getOffset() {
+                return 0;
+            }
+
+            @Override
+            public Sort getSort() {
+//                var a = new Sort.Order(Sort.Direction.ASC, "fromName");
+//                var b = new Sort.Order(Sort.Direction.DESC, "toName");
+//
+//                return Sort.by(List.of(a, b));
+
+                return new QSort(order.fromName.asc(), order.toName.desc());
+            }
+
+            @Override
+            public Pageable next() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousOrFirst() {
+                return null;
+            }
+
+            @Override
+            public Pageable first() {
+                return null;
+            }
+
+            @Override
+            public Pageable withPage(int pageNumber) {
+                return null;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+        };
+
+        var result = mainOrderRepository.findPage(bb, pageable);
+
+        System.out.println(result);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +254,7 @@ class KeenchoLibOrmMvnApplicationTests {
                 "01066666666"
         );
 
-        for (int i = 1; i <= 10; i ++) {
+        for (int i = 1; i <= 30; i ++) {
             MainOrder order = new MainOrder();
 
             order.setOrderStatus(OrderStatus.RECEIVED);

@@ -1,6 +1,5 @@
 package com.keencho.test.vo;
 
-import com.keencho.lib.orm.jpa.querydsl.KcBindingGenerator;
 import com.keencho.test.model.OrderStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@KcBindingGenerator
 public class MainOrderVO {
 
     private Long id;

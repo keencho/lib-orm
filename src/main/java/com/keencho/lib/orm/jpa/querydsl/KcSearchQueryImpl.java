@@ -1,19 +1,23 @@
 package com.keencho.lib.orm.jpa.querydsl;
 
-import com.keencho.lib.orm.support.KcPage;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.AbstractJPAQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.Querydsl;
 import org.springframework.data.querydsl.EntityPathResolver;
 import org.springframework.data.querydsl.QSort;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +40,26 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     //////////////////////////////////////////////////////////////// public method area
 
     @Override
+    public E findOne(Predicate predicate) {
+        return this.createQuery(predicate).select(this.path).fetchOne();
+    }
+
+    @Override
+    public <P> P selectOne(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper) {
+        Assert.notNull(projectionType, "projection type must not be null");
+        Assert.notEmpty(bindings, "bindings must not be empty");
+
+        QBean<P> expression = Projections.bean(projectionType, bindings);
+        JPQLQuery<P> query = this.createQuery(predicate).select(expression);
+
+        if (joinHelper != null) {
+            query = joinHelper.join(query);
+        }
+
+        return query.fetchOne();
+    }
+
+    @Override
     public List<E> findList(Predicate predicate, KcJoinHelper joinHelper, QSort sort) {
         JPQLQuery<E> query = this.createQuery(predicate).select(this.path);
 
@@ -51,7 +75,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> List<P> findList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
+    public <P> List<P> select(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
         Assert.notNull(projectionType, "projection type must not be null");
         Assert.notEmpty(bindings, "bindings must not be empty");
 
@@ -70,23 +94,36 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> KcPage<P> findPage(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
-        Assert.notNull(projectionType, "projection type must not be null");
-        Assert.notEmpty(bindings, "bindings must not be empty");
+    public Page<E> findPage(Predicate predicate, Pageable pageable) {
+        Assert.notNull(pageable, "pageable must not be null!");
+
+        JPQLQuery<?> countQuery = this.createQuery(predicate);
+        JPQLQuery<E> query = countQuery.select(this.path);
+
+        query = this.querydsl.applyPagination(pageable, query);
+
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchCount);
+    }
+
+    @Override
+    public <P> Page<P> selectPage(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, Pageable pageable) {
+        Assert.notNull(projectionType, "projection type must not be null!");
+        Assert.notEmpty(bindings, "bindings must not be empty!");
+        Assert.notNull(pageable, "pageable must not be null!");
 
         QBean<P> expression = Projections.bean(projectionType, bindings);
 
         JPQLQuery<?> countQuery = this.createQuery(predicate);
         JPQLQuery<P> query = countQuery.select(expression);
 
-        query.offset(0);
-        query.limit(3L);
+        if (pageable.isPaged()) {
+            query.offset(pageable.getOffset());
+            query.limit(pageable.getPageSize());
+        }
 
-        List<P> data = query.fetch();
+        query = this.sort(bindings, pageable.getSort(), query);
 
-        long total = countQuery.fetchCount();
-
-        return new KcPage<P>(0, total, total, data);
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchCount);
     }
 
     //////////////////////////////////////////////////////////////// private method area
@@ -100,7 +137,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
         return query;
     }
 
-    private <Q> JPQLQuery<Q> sort (@Nullable Map<String, Expression<?>> bindings, QSort sort, JPQLQuery<Q> query) {
+    private <Q, S extends Sort> JPQLQuery<Q> sort (@Nullable Map<String, Expression<?>> bindings, S sort, JPQLQuery<Q> query) {
         Assert.notNull(sort, "sort must not be null");
         Assert.notNull(query, "query must not be null");
 
@@ -112,8 +149,12 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
             return query;
         }
 
-        List<OrderSpecifier<?>> orderSpecifierList = sort.getOrderSpecifiers();
+        var iterator = sort.iterator();
 
-        return query.orderBy(orderSpecifierList.toArray(new OrderSpecifier[0]));
+        while(iterator.hasNext()) {
+            query = this.querydsl.applySorting(sort, query);
+        }
+
+        return query;
     }
 }
