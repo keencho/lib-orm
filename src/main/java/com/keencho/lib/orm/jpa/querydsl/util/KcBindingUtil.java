@@ -17,63 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class KcBindingUtil {
-
     /**
-     * This method maps only keys with the same field name of the data object and the entity.
+     * Match projection and entity
+     * match if name of field is same.
+     * ignore if field is entity (not support for entity association)
+     * ignore IllegalAccessException
      */
-    public static <E extends EntityPathBase<?>,  P extends ConstructorExpression<?>> P buildConstructor(E entityClass, Class<P> projectionClass) {
-
-        Constructor<P>[] constructors = (Constructor<P>[]) projectionClass.getConstructors();
-
-        for (Constructor<P> constructor : constructors) {
-            Parameter[] parameters = constructor.getParameters();
-
-            List<Path<?>> entityFieldList = new ArrayList<>();
-            for (Parameter parameter : parameters) {
-                for (Field field : entityClass.getClass().getDeclaredFields()) {
-                    if (field.getName().equals(parameter.getName())) {
-                        try {
-                            entityFieldList.add((Path<?>) field.get(entityClass));
-                        } catch (IllegalAccessException e) {
-                            return null;
-                        }
-                    }
-                }
-            }
-
-            if (parameters.length == entityFieldList.size()) {
-                try {
-                    return constructor.newInstance(entityFieldList.toArray());
-                } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-                    return null;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void buildAndPutBinding(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass) {
-        buildAndPutBinding(bindings, key, entityClass, projectionClass, null);
-    }
-
-    /**
-     * build querydsl constructor and put into binding
-     * ignore if querydsl constructor instance is null
-     */
-    public static <E extends EntityPathBase<?>, P extends ConstructorExpression<?>> void buildAndPutBinding(HashMap<String, Expression<?>> bindings, String key, E entityClass, Class<P> projectionClass, @Nullable Runnable functionOnFailure) {
-        P projection = buildConstructor(entityClass, projectionClass);
-
-        if (projection == null) {
-            if (functionOnFailure != null) {
-                functionOnFailure.run();
-            }
-            return;
-        }
-
-        bindings.put(key, projection);
-    }
-
     public static HashMap<String, Expression<?>> buildBindingsViaReflection(EntityPath<?> entityPath, Class<?> projectionClass) {
         HashMap<String, Expression<?>> bindings = new HashMap<>();
 
