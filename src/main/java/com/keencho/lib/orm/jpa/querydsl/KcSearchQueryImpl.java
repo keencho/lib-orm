@@ -17,7 +17,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> List<P> select(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
+    public <P> List<P> selectList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
         Assert.notNull(projectionType, "projection type must not be null");
         Assert.notEmpty(bindings, "bindings must not be empty");
 

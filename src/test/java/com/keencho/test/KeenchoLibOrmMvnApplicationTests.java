@@ -19,7 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.querydsl.QSort;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @SpringBootTest
 class KeenchoLibOrmMvnApplicationTests {
@@ -39,7 +41,7 @@ class KeenchoLibOrmMvnApplicationTests {
 
         bb.and(order.fromName.contains("김"));
 
-        var bindings = KcBindingUtil.buildBindingsViaReflection(order, MainOrderVO.class);
+        var bindings = KcBindingUtil.buildBindings(order, MainOrderVO.class);
 
         bindings.put("pickupRiderId", QMainOrder.mainOrder.pickupRider.id);
         bindings.put("pickupRider", new QRiderVO(
@@ -50,7 +52,7 @@ class KeenchoLibOrmMvnApplicationTests {
                 QMainOrder.mainOrder.pickupRider.phoneNumber
         ));
 
-        var re = mainOrderRepository.select(bb, MainOrderVO.class, bindings, null, null);
+        var re = mainOrderRepository.selectList(bb, MainOrderVO.class, bindings, null, null);
 
         System.out.println(re);
     }
@@ -63,7 +65,7 @@ class KeenchoLibOrmMvnApplicationTests {
 
         bb.and(order.fromName.contains("김"));
 
-        var bindings = KcBindingUtil.buildBindingsViaReflection(order, MainOrderVO.class);
+        var bindings = KcBindingUtil.buildBindings(order, MainOrderVO.class);
 
         bindings.put("pickupRiderId", QMainOrder.mainOrder.pickupRider.id);
         bindings.put("pickupRider", new QRiderVO(

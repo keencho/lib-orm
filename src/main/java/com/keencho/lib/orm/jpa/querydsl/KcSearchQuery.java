@@ -19,7 +19,7 @@ public interface KcSearchQuery<E> {
 
     List<E> findList(@Nullable Predicate predicate, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
 
-    <P> List<P> select(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
+    <P> List<P> selectList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
 
     Page<E> findPage(@Nullable Predicate predicate, Pageable pageable);
 
