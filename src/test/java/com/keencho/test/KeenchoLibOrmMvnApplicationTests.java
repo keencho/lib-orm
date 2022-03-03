@@ -44,13 +44,14 @@ class KeenchoLibOrmMvnApplicationTests {
         var bindings = KcBindingUtil.buildBindings(order, MainOrderVO.class);
 
         bindings.put("pickupRiderId", QMainOrder.mainOrder.pickupRider.id);
-        bindings.put("pickupRider", new QRiderVO(
-                QMainOrder.mainOrder.pickupRider.id,
-                QMainOrder.mainOrder.pickupRider.name,
-                QMainOrder.mainOrder.pickupRider.loginId,
-                QMainOrder.mainOrder.pickupRider.password,
-                QMainOrder.mainOrder.pickupRider.phoneNumber
-        ));
+//        bindings.put("pickupRider", new QRiderVO(
+//                QMainOrder.mainOrder.pickupRider.id,
+//                QMainOrder.mainOrder.pickupRider.name,
+//                QMainOrder.mainOrder.pickupRider.loginId,
+//                QMainOrder.mainOrder.pickupRider.password,
+//                QMainOrder.mainOrder.pickupRider.phoneNumber
+//        ));
+        bindings.put("pickupRider", QMainOrder.mainOrder.pickupRider);
 
         var re = mainOrderRepository.selectList(bb, MainOrderVO.class, bindings, null, null);
 

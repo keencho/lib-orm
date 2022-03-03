@@ -80,13 +80,6 @@
             <version>1.0.2</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.keencho.lib</groupId>-->
-<!--            <artifactId>keencho-p6spy</artifactId>-->
-<!--            <version>1.0.2</version>-->
-<!--        </dependency>-->
-        <!-- remove... -->
-
     </dependencies>
 
     <build>
