@@ -13,6 +13,7 @@ import org.springframework.data.querydsl.EntityPathResolver;
 import org.springframework.data.querydsl.QSort;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -27,13 +28,11 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     private final EntityPath<E> path;
     private final Querydsl querydsl;
     private final PathBuilder<?> builder;
-    private final EntityManager entityManager;
 
     public KcSearchQueryImpl(JpaEntityInformation<E, ?> entityInformation, EntityManager entityManager) {
         this.path = resolver.createPath(entityInformation.getJavaType());
         this.builder = new PathBuilder<E>(this.path.getType(), this.path.getMetadata());
         this.querydsl = new Querydsl(entityManager, this.builder);
-        this.entityManager = entityManager;
     }
 
     //////////////////////////////////////////////////////////////// public method area
@@ -44,7 +43,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> P selectOne(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper) {
+    public <P> P selectOne(Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, KcJoinHelper<P> joinHelper) {
         Assert.notNull(projectionType, "projection type must not be null");
         Assert.notEmpty(bindings, "bindings must not be empty");
 
@@ -59,7 +58,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public List<E> findList(Predicate predicate, KcJoinHelper joinHelper, QSort sort) {
+    public List<E> findList(Predicate predicate, KcJoinHelper<E> joinHelper, QSort sort) {
         JPQLQuery<E> query = this.createQuery(predicate).select(this.path);
 
         if (joinHelper != null) {
@@ -74,7 +73,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> List<P> selectList(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, QSort sort) {
+    public <P> List<P> selectList(Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, KcJoinHelper<P> joinHelper, QSort sort) {
         Assert.notNull(projectionType, "projection type must not be null");
         Assert.notEmpty(bindings, "bindings must not be empty");
 
@@ -93,6 +92,23 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
+    public <P> List<P> selectList(Predicate predicate, @NonNull ConstructorExpression<P> bindingData, KcJoinHelper<P> joinHelper, QSort sort) {
+        Assert.notNull(bindingData, "binding data must not be null!");
+
+        JPQLQuery<P> query = this.createQuery(predicate).select(bindingData);
+
+        if (joinHelper != null) {
+            query = joinHelper.join(query);
+        }
+
+//        if (sort != null) {
+//            query = this.sort(bindingData, sort, query);
+//        }
+
+        return query.fetch();
+    }
+
+    @Override
     public Page<E> findPage(Predicate predicate, Pageable pageable) {
         Assert.notNull(pageable, "pageable must not be null!");
 
@@ -105,7 +121,7 @@ public class KcSearchQueryImpl<E> implements KcSearchQuery<E> {
     }
 
     @Override
-    public <P> Page<P> selectPage(Predicate predicate, Class<P> projectionType, Map<String, Expression<?>> bindings, KcJoinHelper joinHelper, Pageable pageable) {
+    public <P> Page<P> selectPage(Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, KcJoinHelper<P> joinHelper, Pageable pageable) {
         Assert.notNull(projectionType, "projection type must not be null!");
         Assert.notEmpty(bindings, "bindings must not be empty!");
         Assert.notNull(pageable, "pageable must not be null!");

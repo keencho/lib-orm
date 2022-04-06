@@ -1,5 +1,6 @@
 package com.keencho.lib.orm.jpa.querydsl;
 
+import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
@@ -15,14 +16,16 @@ public interface KcSearchQuery<E> {
 
     E findOne(@Nullable Predicate predicate);
 
-    <P> P selectOne(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper);
+    <P> P selectOne(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper<P> joinHelper);
 
-    List<E> findList(@Nullable Predicate predicate, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
+    List<E> findList(@Nullable Predicate predicate, @Nullable KcJoinHelper<E> joinHelper, @Nullable QSort sort);
 
-    <P> List<P> selectList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, @Nullable QSort sort);
+    <P> List<P> selectList(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper<P> joinHelper, @Nullable QSort sort);
+
+    <P> List<P> selectList(@Nullable Predicate predicate, @NonNull ConstructorExpression<P>  bindingData, @Nullable KcJoinHelper<P> joinHelper, @Nullable QSort sort);
 
     Page<E> findPage(@Nullable Predicate predicate, Pageable pageable);
 
-    <P> Page<P> selectPage(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper joinHelper, Pageable pageable);
+    <P> Page<P> selectPage(@Nullable Predicate predicate, @NonNull Class<P> projectionType, @NonNull Map<String, Expression<?>> bindings, @Nullable KcJoinHelper<P> joinHelper, Pageable pageable);
 
 }

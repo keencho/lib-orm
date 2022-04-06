@@ -16,7 +16,6 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @EqualsAndHashCode.Exclude
     Long id;
 
     private String fromAddress;

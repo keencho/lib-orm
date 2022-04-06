@@ -7,6 +7,4 @@ public class ProductVO {
     private String name;
     private int qty;
     private String size;
-
-    private OrderVO order;
 }
